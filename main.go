@@ -69,8 +69,20 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
 func resetAction(w http.ResponseWriter, r *http.Request) {
 	// message := "Break my stride"
 	// w.Write([]byte(message))
-	instance := r.URL.Query().Get("instance")
-	http.Redirect(w, r, `/?msg=` +  instance + ` restarted successfully`, 301)
+	// instance := r.URL.Query().Get("instance")
+	out, err := exec.Command("sh","-c","ls").Output()
+
+
+
+	if err != nil {
+    s := fmt.Sprintf("%s", err)
+  } else {
+		s := fmt.Sprintf("%s", out)
+		http.Redirect(w, r, `/?msg=` +  s + ` restarted successfully`, 301)
+	}
+
+
+
 }
 
 
