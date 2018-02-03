@@ -9,6 +9,14 @@ import (
 
 func generateMenu(w http.ResponseWriter, r *http.Request) {
 	msg := r.URL.Query().Get("msg")
+	err := r.URL.Query().Get("err")
+	response := ``
+
+	if (msg != "") {
+		response = `<strong class="msg">` + msg + `</strong>`
+	} else if(err != "") {
+		response = `<strong class="err">` + err + `</strong>`
+	}
 
   message := `
     <html>
@@ -25,19 +33,24 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
         body > ol > li {
           font-size: 1.3rem;
         }
-				.msg {
+				.msg, .err {
 					display: block;
 					border-radius: 0.25rem;
 					color: #FFF;
-					background: green;
 					padding: 1rem;
 					text-align: center;
+				}
+				.msg {
+					background: green;
+				}
+				.err {
+					background: red;
 				}
 
         </style>
       </head>
       <body>
-			<strong class="msg">` + msg + `</strong>
+			` + response + `
         <ol>
           <li><span>Sonarr</span>
             <ol>
@@ -69,20 +82,18 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
 func resetAction(w http.ResponseWriter, r *http.Request) {
 	// message := "Break my stride"
 	// w.Write([]byte(message))
-	// instance := r.URL.Query().Get("instance")
-	out, err := exec.Command("sh","-c","ls").Output()
+	instance := r.URL.Query().Get("instance")
+	out, err := exec.Command("sh","-c","docker restart " + instance).Output()
 
 
 
 	if err != nil {
-    s := fmt.Sprintf("%s", err)
+    // s := fmt.Sprintf("%s", err)
+		http.Redirect(w, r, `/?err=Failed to restart`, 302)
   } else {
 		s := fmt.Sprintf("%s", out)
-		http.Redirect(w, r, `/?msg=` +  s + ` restarted successfully`, 301)
+		http.Redirect(w, r, `/?msg=Success:` + s, 302)
 	}
-
-
-
 }
 
 
@@ -106,7 +117,7 @@ func main() {
   http.HandleFunc("/", generateMenu)
 	http.HandleFunc("/reset", resetAction)
 
-  if err := http.ListenAndServe(":8080", nil); err != nil {
+  if err := http.ListenAndServe(":999", nil); err != nil {
     panic(err)
   }
 }
