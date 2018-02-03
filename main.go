@@ -22,14 +22,22 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
           font-weight: bold;
           font-size: 1.2rem;
         }
-
         body > ol > li {
           font-size: 1.3rem;
         }
+				.msg {
+					display: block;
+					border-radius: 0.25rem;
+					color: #FFF;
+					background: green;
+					padding: 1rem;
+					text-align: center;
+				}
+
         </style>
       </head>
       <body>
-			<strong>` + msg + `</strong>
+			<strong class="msg">` + msg + `</strong>
         <ol>
           <li><span>Sonarr</span>
             <ol>
