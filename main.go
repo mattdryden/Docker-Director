@@ -8,6 +8,8 @@ import (
 )
 
 func generateMenu(w http.ResponseWriter, r *http.Request) {
+	msg := r.URL.Query().Get("msg")
+
   message := `
     <html>
       <head>
@@ -27,25 +29,26 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
         </style>
       </head>
       <body>
+			<strong>` + msg + `</strong>
         <ol>
           <li><span>Sonarr</span>
             <ol>
-              <li>Restart</li>
+              <li><a href="/reset?instance=sonarr">Restart</a></li>
               </ol>
             </li>
           <li><span>Sabnzbd</span>
             <ol>
-              <li>Restart</li>
+              <li><a href="/reset?instance=sabnzbd">Restart</a></li>
               </ol>
             </li>
           <li><span>ruTorrent</span>
             <ol>
-              <li>Restart</li>
+              <li><a href="/reset?instance=rutorrent">Restart</a></li>
               </ol>
             </li>
           <li><span>Plex</span>
             <ol>
-              <li>Restart</li>
+              <li><a href="/reset?instance=plex">Restart</a></li>
               </ol>
             </li>
         </ol>
@@ -54,6 +57,15 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
   `
   w.Write([]byte(message))
 }
+
+func resetAction(w http.ResponseWriter, r *http.Request) {
+	// message := "Break my stride"
+	// w.Write([]byte(message))
+	instance := r.URL.Query().Get("instance")
+	http.Redirect(w, r, `/?msg=` +  instance + ` restarted successfully`, 301)
+}
+
+
 
 func exe_cmd(cmd string, wg *sync.WaitGroup) {
   fmt.Println("command is ",cmd)
@@ -72,6 +84,8 @@ func exe_cmd(cmd string, wg *sync.WaitGroup) {
 
 func main() {
   http.HandleFunc("/", generateMenu)
+	http.HandleFunc("/reset", resetAction)
+
   if err := http.ListenAndServe(":8080", nil); err != nil {
     panic(err)
   }
