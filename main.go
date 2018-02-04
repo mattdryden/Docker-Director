@@ -74,6 +74,9 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
         ol {
           margin-bottom: 2rem;
         }
+				body {
+					margin: 20px;
+				}
         body > ol > li > span {
           font-weight: bold;
           font-size: 1.2rem;
