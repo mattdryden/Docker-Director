@@ -7,6 +7,26 @@ import (
   "os/exec"
 )
 
+func viewAction(w http.ResponseWriter, r *http.Request) {
+	instance := r.URL.Query().Get("instance")
+	url := "";
+	switch instance {
+		case "plex":
+			url = "http://192.168.1.37:32400"
+		case "sonarr":
+			url = "http://192.168.1.37:8989"
+		case "rutorrent":
+			url = "http://192.168.1.37"
+		case "sabnzbd":
+			url = "http://192.168.1.37:8080"
+		default:
+			url = "/"
+		}
+		if(url != "") {
+			http.Redirect(w, r, url, 302)
+		}
+}
+
 func generateMenu(w http.ResponseWriter, r *http.Request) {
 	msg := r.URL.Query().Get("msg")
 	err := r.URL.Query().Get("err")
@@ -75,14 +95,17 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
           margin-bottom: 2rem;
         }
 				body {
-					margin: 20px;
+					margin: 1rem;
 				}
         body > ol > li > span {
           font-weight: bold;
           font-size: 1.2rem;
+					margin-bottom: .5rem;
+					display: block;
         }
         body > ol > li {
-          font-size: 1.3rem;
+          font-size: 1.2rem;
+					display: block;
         }
 				.msg, .err {
 					display: block;
@@ -90,6 +113,7 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
 					color: #FFF;
 					padding: 1rem;
 					text-align: center;
+					margin-bottom: 1rem;
 				}
 				.msg {
 					background: green;
@@ -105,22 +129,26 @@ func generateMenu(w http.ResponseWriter, r *http.Request) {
         <ol>
           <li><span>Sonarr</span>
             <ol>
-              <li><a href="/reset?instance=sonarr">Restart</a></li>
+						<li><a href="/reset?instance=sonarr">Restart</a></li>
+						<li><a href="/view?instance=sonarr">View</a></li>
               </ol>
             </li>
           <li><span>Sabnzbd</span>
             <ol>
               <li><a href="/reset?instance=sabnzbd">Restart</a></li>
+							<li><a href="/view?instance=sabnzbd">View</a></li>
               </ol>
             </li>
           <li><span>ruTorrent</span>
             <ol>
               <li><a href="/reset?instance=rutorrent">Restart</a></li>
+							<li><a href="/view?instance=rutorrent">View</a></li>
               </ol>
             </li>
           <li><span>Plex</span>
             <ol>
               <li><a href="/reset?instance=plex">Restart</a></li>
+							<li><a href="/view?instance=plex">View</a></li>
               </ol>
             </li>
         </ol>
@@ -167,6 +195,7 @@ func exe_cmd(cmd string, wg *sync.WaitGroup) {
 func main() {
   http.HandleFunc("/", generateMenu)
 	http.HandleFunc("/reset", resetAction)
+	http.HandleFunc("/view", viewAction)
 
   if err := http.ListenAndServe(":999", nil); err != nil {
     panic(err)
